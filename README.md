@@ -17,7 +17,7 @@ nonogram_rl/
 │── __init__.py        # Package initialization
 │── board.py           # TileState enum and Board class
 │── env.py             # Gym environment wrapper
-baseline_random_agent.py  # Simple baseline agent
+baseline.py  # Simple baseline agent
 ```
 
 ---
