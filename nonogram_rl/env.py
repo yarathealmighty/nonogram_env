@@ -24,6 +24,7 @@ class NonogramEnv(gym.Env):
             spaces.Discrete(cols),
             spaces.Discrete(3)
         ))
+        self._gameover = False
 
     def reset(self, *, seed: Optional[int] = None, options=None):
         super().reset(seed=seed)
@@ -53,6 +54,10 @@ class NonogramEnv(gym.Env):
         self.total_points += reward
 
         terminated = self.board.is_solved()
+
+        if terminated:
+            self._gameover = True
+
         truncated = False
         info = {}
 
@@ -63,11 +68,20 @@ class NonogramEnv(gym.Env):
         return np.array(self.board.tilemap, dtype=np.int8)
 
     def render(self, mode="ansi"):
+        """
+        Renders the board showing the player's marks.
+        - White: UNMARKED
+        - Green: FILLED
+        - Red: EMPTY
+        Displays row and column hints.
+        Uses 3x3 “pixel” blocks per tile.
+        Shows the solution if the game has ended.
+        """
         ANSI_RESET = "\033[0m"
         COLORS = {
-            "UNMARKED": "\033[47m",
-            "CORRECT": "\033[42m",
-            "INCORRECT": "\033[41m",
+            TileState.UNMARKED: "\033[47m",  # white
+            TileState.FILLED: "\033[42m",    # green
+            TileState.EMPTY: "\033[41m",     # red
         }
 
         rows = self.board._rows
@@ -75,6 +89,7 @@ class NonogramEnv(gym.Env):
         max_row_hint_len = max(len(h) for h in self.board.horizontal_hints)
         max_col_hint_len = max(len(h) for h in self.board.vertical_hints)
 
+        # Render column hints
         col_hint_lines = []
         for i in range(max_col_hint_len):
             line = [" " * 3 * max_row_hint_len]
@@ -87,25 +102,36 @@ class NonogramEnv(gym.Env):
         for l in col_hint_lines:
             print(l)
 
+        # Render player board with row hints
         for r in range(rows):
             row_hints = self.board.horizontal_hints[r]
             padded_hints = [""] * (max_row_hint_len - len(row_hints)) + [str(h) for h in row_hints]
             hint_str = "".join(f"{h:>3}" for h in padded_hints)
+
             for i in range(3):
                 line = [hint_str if i == 1 else " " * 3 * max_row_hint_len]
                 for c in range(cols):
                     player_mark = self.board._tilemap[r][c]
-                    solution_mark = self.board._solution_tilemap[r][c]
-                    if player_mark == TileState.UNMARKED:
-                        color = COLORS["UNMARKED"]
-                    elif player_mark == solution_mark:
-                        color = COLORS["CORRECT"]
-                    else:
-                        color = COLORS["INCORRECT"]
+                    color = COLORS[player_mark]
                     line.append(color + "   " + ANSI_RESET)
                 print("".join(line))
 
         print(f"Points: {self.total_points}\n")
+
+        # Show the solution when the game ended
+        if self._gameover:
+            print("Game ended! Original solution:")
+            for r in range(rows):
+                for i in range(3):
+                    line = [" " * 3 * max_row_hint_len]
+                    for c in range(cols):
+                        solution_mark = self.board._solution_tilemap[r][c]
+                        color = COLORS[solution_mark]
+                        line.append(color + "   " + ANSI_RESET)
+                    print("".join(line))
+            print()
+
+
 
     def close(self):
         pass

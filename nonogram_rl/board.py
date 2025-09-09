@@ -66,5 +66,12 @@ class Board:
         return self._solution_tilemap[row][col] == mark
 
     def is_solved(self) -> bool:
-        """Check if the puzzle is fully solved."""
-        return self._tilemap == self._solution_tilemap
+        """
+        Returns True if all tiles have been marked (not UNMARKED),
+        regardless of whether they match the solution.
+        """
+        for r in range(self._rows):
+            for c in range(self._cols):
+                if self._tilemap[r][c] == TileState.UNMARKED:
+                    return False
+        return True

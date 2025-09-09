@@ -74,12 +74,14 @@ env.render()
 
 # Take an example action
 # Mark tile at row=0, col=0 as FILLED
-action = (0, 0, 1)  # (row, col, mark_index) -> 0=UNMARKED, 1=FILLED, 2=EMPTY
-obs, reward, terminated, truncated, info = env.step(action)
+for i in range(5):
+    for j in range(5):
+        action = (i, j, 1)  # (row, col, mark_index) -> 0=UNMARKED, 1=FILLED, 2=EMPTY
+        obs, reward, terminated, truncated, info = env.step(action)
 
-print("After action:")
-env.render()
-print(f"Reward: {reward}")
+        print("After action:")
+        env.render()
+        print(f"Reward: {reward}")
 ```
 
 ---
