@@ -4,7 +4,7 @@ This project implements a **Nonogram (Picross) environment** for reinforcement l
 It includes:
 
 - A `Board` class to generate and manage Nonogram puzzles.
-- A Gym-compatible `NonogramEnv` environment.
+- A Gymnasium-compatible `NonogramEnv` environment.
 - ANSI-rendered board with **hints, colored 3x3 tiles, and cumulative points**.
 - A baseline random agent example.
 
@@ -16,7 +16,7 @@ It includes:
 nonogram_rl/
 │── __init__.py        # Package initialization
 │── board.py           # TileState enum and Board class
-│── env.py             # Gym environment wrapper
+│── env.py             # Gymnasium environment wrapper
 baseline.py  # Simple baseline agent
 ```
 
