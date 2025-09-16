@@ -62,6 +62,8 @@ class Board:
         """
         Player marks a cell. Returns True if correct, False otherwise.
         """
+        if self._tilemap[row][col] == mark:
+            return False
         self._tilemap[row][col] = mark
         return self._solution_tilemap[row][col] == mark
 
