@@ -18,12 +18,12 @@ class NonogramEnv(gym.Env):
         self.board = Board(rows, cols)
         self.board.generate_tilemap(fill_prob=0.4, seed=seed)
 
-        self.observation_space = spaces.Box(low=-1, high=1, shape=(rows, cols), dtype=np.int8)
-        self.action_space = spaces.Tuple((
-            spaces.Discrete(rows),
-            spaces.Discrete(cols),
-            spaces.Discrete(3)
-        ))
+        self.action_space = spaces.MultiDiscrete([rows, cols, 3])
+
+        self.observation_space = spaces.Box(
+            low=-1.0, high=1.0, shape=(rows, cols), dtype=np.float32
+        )
+
         self._gameover = False
 
     def reset(self, *, seed: Optional[int] = None, options=None):
@@ -33,7 +33,7 @@ class NonogramEnv(gym.Env):
         return self._get_obs(), {}
 
     def step(self, action):
-        row, col, mark_idx = action
+        row, col, mark_idx = int(action[0]), int(action[1]), int(action[2])
         if mark_idx == 0:
             mark = TileState.UNMARKED
         elif mark_idx == 1:
@@ -49,11 +49,7 @@ class NonogramEnv(gym.Env):
 
         correct = self.board.apply_action(row, col, mark)
 
-        if already_correct:
-            reward = -1
-        else:
-            reward = 1 if correct else -1
-
+        reward = -1 if already_correct else (1 if correct else -1)
         self.total_points += reward
 
         terminated = self.board.is_solved()
@@ -66,18 +62,9 @@ class NonogramEnv(gym.Env):
         return self._get_obs(), reward, terminated, truncated, info
 
     def _get_obs(self):
-        return np.array(self.board.tilemap, dtype=np.int8)
+        return np.array(self.board.tilemap, dtype=np.float32)
 
-    def render(self):
-        """
-        Renders the board showing the player's marks.
-        - White: UNMARKED
-        - Green: FILLED
-        - Red: EMPTY
-        Displays row and column hints.
-        Uses 3x3 “pixel” blocks per tile.
-        Shows the solution if the game has ended.
-        """
+    def render(self, mode="ansi"):
         ANSI_RESET = "\033[0m"
         COLORS = {
             TileState.UNMARKED: "\033[47m",  # white
@@ -90,23 +77,27 @@ class NonogramEnv(gym.Env):
         max_row_hint_len = max(len(h) for h in self.board.horizontal_hints)
         max_col_hint_len = max(len(h) for h in self.board.vertical_hints)
 
-        # Render column hints
         col_hint_lines = []
         for i in range(max_col_hint_len):
             line = [" " * 3 * max_row_hint_len]
             for c in range(cols):
                 hints = self.board.vertical_hints[c]
-                val = hints[i - (max_col_hint_len - len(hints))] if i >= max_col_hint_len - len(hints) else " "
+                val = (
+                    hints[i - (max_col_hint_len - len(hints))]
+                    if i >= max_col_hint_len - len(hints)
+                    else " "
+                )
                 line.append(f"{val:^3}")
             col_hint_lines.append("".join(line))
 
         for l in col_hint_lines:
             print(l)
 
-        # Render player board with row hints
         for r in range(rows):
             row_hints = self.board.horizontal_hints[r]
-            padded_hints = [""] * (max_row_hint_len - len(row_hints)) + [str(h) for h in row_hints]
+            padded_hints = [""] * (max_row_hint_len - len(row_hints)) + [
+                str(h) for h in row_hints
+            ]
             hint_str = "".join(f"{h:>3}" for h in padded_hints)
 
             for i in range(3):
@@ -119,7 +110,6 @@ class NonogramEnv(gym.Env):
 
         print(f"Points: {self.total_points}\n")
 
-        # Show the solution when the game ended
         if self._gameover:
             print("Game ended! Original solution:")
             for r in range(rows):
