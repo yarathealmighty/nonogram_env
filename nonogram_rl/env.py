@@ -1,12 +1,12 @@
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 from typing import Optional
 from .board import Board, TileState
 
 
 class NonogramEnv(gym.Env):
-    metadata = {"render.modes": ["ansi"]}
+    metadata = {"render_modes": ["ansi"]}
 
     def __init__(self, rows=5, cols=5, seed: Optional[int] = None):
         super().__init__()
@@ -41,8 +41,11 @@ class NonogramEnv(gym.Env):
         else:
             mark = TileState.EMPTY
 
-        already_correct = (self.board._tilemap[row][col] == self.board._solution_tilemap[row][col] and
-                        self.board._tilemap[row][col] == TileState.FILLED and mark == TileState.FILLED)
+        already_correct = (
+            self.board._tilemap[row][col] == self.board._solution_tilemap[row][col]
+            and self.board._tilemap[row][col] == TileState.FILLED
+            and mark == TileState.FILLED
+        )
 
         correct = self.board.apply_action(row, col, mark)
 
@@ -54,7 +57,6 @@ class NonogramEnv(gym.Env):
         self.total_points += reward
 
         terminated = self.board.is_solved()
-
         if terminated:
             self._gameover = True
 
@@ -63,11 +65,10 @@ class NonogramEnv(gym.Env):
 
         return self._get_obs(), reward, terminated, truncated, info
 
-
     def _get_obs(self):
         return np.array(self.board.tilemap, dtype=np.int8)
 
-    def render(self, mode="ansi"):
+    def render(self):
         """
         Renders the board showing the player's marks.
         - White: UNMARKED
@@ -130,8 +131,6 @@ class NonogramEnv(gym.Env):
                         line.append(color + "   " + ANSI_RESET)
                     print("".join(line))
             print()
-
-
 
     def close(self):
         pass

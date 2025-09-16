@@ -40,12 +40,12 @@ def random_baseline(env: NonogramEnv):
 
 if __name__ == "__main__":
     total_points = 0
-    runs = 200
+    runs = 1
     #0.98/0.2/1.65 15x15
     #0.33/-0.01/-0.36 10x10 - 200 runs
     #-0.62/-0.2/-0.5 5x5 - 200 runs
     for i in range(runs):
-        env = NonogramEnv(rows=15, cols=15, seed=42)
+        env = NonogramEnv(rows=3, cols=3, seed=69420)
         random_baseline(env)
         total_points += env.total_points
         env.close()

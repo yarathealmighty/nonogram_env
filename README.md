@@ -25,13 +25,13 @@ baseline_random_agent.py  # Simple baseline agent
 ## Requirements
 
 - Python 3.9+
-- `gym` library
+- `gymnasium` library
 - `numpy`
 
 Install dependencies:
 
 ```bash
-pip install gym numpy
+pip install gymnasium numpy
 ```
 
 *Optional for Windows terminals*: If ANSI colors don’t display correctly, install `colorama`:
