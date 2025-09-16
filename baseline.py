@@ -45,7 +45,7 @@ if __name__ == "__main__":
     #0.33/-0.01/-0.36 10x10 - 200 runs
     #-0.62/-0.2/-0.5 5x5 - 200 runs
     for i in range(runs):
-        env = NonogramEnv(rows=3, cols=3, seed=69420)
+        env = NonogramEnv(rows=5, cols=5, seed=123)
         random_baseline(env)
         total_points += env.total_points
         env.close()

@@ -49,7 +49,7 @@ class NonogramEnv(gym.Env):
 
         correct = self.board.apply_action(row, col, mark)
 
-        reward = -1 if already_correct else (1 if correct else -1)
+        reward = -1 if already_correct else (1 if correct else 0)
         self.total_points += reward
 
         terminated = self.board.is_solved()
